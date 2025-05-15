@@ -3,10 +3,22 @@ package main
 import (
 	"log"
 	"order-service/internal/controller"
+	"order-service/internal/repository"
 	"order-service/internal/service"
 )
 
 func main() {
+	dsn := "user:password@tcp(localhost:3306)/order_db?charset=utf8mb4&parseTime=True&loc=Local"
+
+	// 初始化数据库仓库
+	repo, err := repository.NewOrderMySQLRepo(dsn)
+	if err != nil {
+		log.Fatalf("初始化数据库失败: %v", err)
+	}
+
+	// 初始化服务
+	orderService := service.NewOrderService(repo)
+
 	// 初始化服务
 	orderService := service.NewOrderService()
 

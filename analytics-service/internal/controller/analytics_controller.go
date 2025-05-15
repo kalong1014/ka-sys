@@ -1,10 +1,10 @@
 package controller
 
 import (
-	"analytics-service/internal/domain"
 	"analytics-service/internal/service"
 	"context"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -14,61 +14,54 @@ type AnalyticsController struct {
 }
 
 func NewAnalyticsController(as *service.AnalyticsService) *AnalyticsController {
-	return &AnalyticsController{
-		analyticsService: as,
-	}
+	return &AnalyticsController{analyticsService: as}
 }
 
-// 创建访问记录
-func (c *AnalyticsController) CreateVisit(ctx *gin.Context) {
-	var req domain.CreateVisitRequest
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "请求参数解析错误", "detail": err.Error()})
-		return
-	}
+// 获取商户概览数据
+func (c *AnalyticsController) GetMerchantOverview(ctx *gin.Context) {
+	merchantID := ctx.Param("merchant_id")
+	today := time.Now()
+	lastMonth := today.AddDate(0, -1, 0)
 
-	// 调用服务层逻辑
-	visit, err := c.analyticsService.CreateVisit(context.Background(), &req)
+	overview, err := c.analyticsService.GetMerchantOverview(
+		context.Background(),
+		merchantID,
+		lastMonth,
+		today,
+	)
+
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "创建访问记录失败", "detail": err.Error()})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "获取概览数据失败", "detail": err.Error()})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, visit)
+	ctx.JSON(http.StatusOK, overview)
 }
 
-// 获取订单统计
-func (c *AnalyticsController) GetOrderStats(ctx *gin.Context) {
-	var req domain.GetStatsRequest
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "请求参数解析错误", "detail": err.Error()})
-		return
-	}
+// 获取域名流量数据
+func (c *AnalyticsController) GetDomainTraffic(ctx *gin.Context) {
+	domainID := ctx.Param("domain_id")
+	daysStr := ctx.DefaultQuery("days", "7")
 
-	// 调用服务层逻辑
-	stats, err := c.analyticsService.GetOrderStats(context.Background(), &req)
+	days, err := time.ParseDuration(daysStr + "d")
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "获取订单统计失败", "detail": err.Error()})
-		return
+		days = 7 * 24 * time.Hour // 默认7天
 	}
 
-	ctx.JSON(http.StatusOK, stats)
-}
+	endTime := time.Now()
+	startTime := endTime.Add(-days)
 
-// 获取流量统计
-func (c *AnalyticsController) GetTrafficStats(ctx *gin.Context) {
-	var req domain.GetStatsRequest
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "请求参数解析错误", "detail": err.Error()})
-		return
-	}
+	traffic, err := c.analyticsService.GetDomainTraffic(
+		context.Background(),
+		domainID,
+		startTime,
+		endTime,
+	)
 
-	// 调用服务层逻辑
-	stats, err := c.analyticsService.GetTrafficStats(context.Background(), &req)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "获取流量统计失败", "detail": err.Error()})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "获取流量数据失败", "detail": err.Error()})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, stats)
+	ctx.JSON(http.StatusOK, traffic)
 }

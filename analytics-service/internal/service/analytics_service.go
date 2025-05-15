@@ -2,7 +2,9 @@ package service
 
 import (
 	"analytics-service/internal/domain"
+	"common/pkg/mq"
 	"context"
+	"encoding/json"
 	"errors"
 	"log"
 	"strings"
@@ -12,17 +14,23 @@ import (
 )
 
 type AnalyticsService struct {
-	visits  map[string]domain.VisitRecord  // 访问记录存储
-	orders  map[string]domain.OrderStats   // 订单统计存储
-	traffic map[string]domain.TrafficStats // 流量统计存储
+	visits   map[string]domain.VisitRecord  // 访问记录存储
+	orders   map[string]domain.OrderStats   // 订单统计存储
+	traffic  map[string]domain.TrafficStats // 流量统计存储
+	repo     repository.AnalyticsRepository
+	mqClient *mq.RabbitMQClient // 新增消息队列客户端
 }
 
-func NewAnalyticsService() *AnalyticsService {
-	return &AnalyticsService{
-		visits:  make(map[string]domain.VisitRecord),
-		orders:  make(map[string]domain.OrderStats),
-		traffic: make(map[string]domain.TrafficStats),
+func NewAnalyticsService(repo repository.AnalyticsRepository, mqClient *mq.RabbitMQClient) *AnalyticsService {
+	service := &AnalyticsService{
+		repo:     repo,
+		mqClient: mqClient,
 	}
+
+	// 注册消息处理器
+	service.registerMessageHandlers()
+
+	return service
 }
 
 // 创建访问记录
@@ -207,4 +215,22 @@ func (s *AnalyticsService) generateStatsID(merchantID, domainID, pageID, period 
 	}
 
 	return strings.Join(parts, "_")
+}
+
+// 注册消息处理器
+func (s *AnalyticsService) registerMessageHandlers() {
+	// 处理订单创建事件
+	err := s.mqClient.Consume(func(body []byte) error {
+		var event domain.OrderCreatedEvent
+		if err := json.Unmarshal(body, &event); err != nil {
+			return err
+		}
+
+		// 更新统计数据
+		return s.repo.RecordOrderEvent(context.Background(), &event)
+	})
+
+	if err != nil {
+		log.Fatalf("注册订单创建事件处理器失败: %v", err)
+	}
 }

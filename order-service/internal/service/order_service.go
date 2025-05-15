@@ -7,17 +7,24 @@ import (
 	"order-service/internal/domain"
 	"time"
 
+	"common/pkg/mq"
+	"encoding/json"
+
 	"github.com/google/uuid"
 )
 
 type OrderService struct {
-	orders map[string]domain.Order // 订单存储
+	orders   map[string]domain.Order // 订单存储
+	repo     repository.OrderRepository
+	mqClient *mq.RabbitMQClient // 新增消息队列客户端
 	// 后续需要注入商品服务和卡密服务的客户端
 }
 
-func NewOrderService() *OrderService {
+func NewOrderService(repo repository.OrderRepository, mqClient *mq.RabbitMQClient) *OrderService {
 	return &OrderService{
-		orders: make(map[string]domain.Order),
+		repo:     repo,
+		mqClient: mqClient,
+		orders:   make(map[string]domain.Order),
 	}
 }
 
@@ -45,6 +52,25 @@ func (s *OrderService) CreateOrder(ctx context.Context, req *domain.CreateOrderR
 	// 保存订单
 	s.orders[orderID] = order
 	log.Printf("订单创建成功: ID=%s", orderID)
+
+	// 发送订单创建消息
+	orderCreatedEvent := domain.OrderCreatedEvent{
+		OrderID:     order.ID,
+		MerchantID:  order.MerchantID,
+		TotalAmount: order.TotalAmount,
+		CreatedAt:   time.Now(),
+	}
+
+	eventData, err := json.Marshal(orderCreatedEvent)
+	if err != nil {
+		log.Printf("序列化订单创建事件失败: %v", err)
+		// 可以选择记录错误但不影响主流程
+	} else {
+		err = s.mqClient.Publish(eventData)
+		if err != nil {
+			log.Printf("发布订单创建事件失败: %v", err)
+		}
+	}
 
 	return &order, nil
 }
