@@ -6,11 +6,10 @@ import (
 
 // 订单状态
 const (
-	OrderStatusPending   = "pending"   // 待支付
-	OrderStatusPaid      = "paid"      // 已支付
-	OrderStatusFailed    = "failed"    // 支付失败
-	OrderStatusRefunded  = "refunded"  // 已退款
-	OrderStatusCompleted = "completed" // 已完成
+	OrderStatusPending  = "pending"  // 待支付
+	OrderStatusPaid     = "paid"     // 已支付
+	OrderStatusFailed   = "failed"   // 支付失败
+	OrderStatusCanceled = "canceled" // 已取消
 )
 
 // 订单模型

@@ -1,14 +1,14 @@
 package service
 
 import (
+	"common/pkg/events"
+	"common/pkg/mq"
 	"context"
+	"encoding/json"
 	"errors"
 	"log"
 	"order-service/internal/domain"
 	"time"
-
-	"common/pkg/mq"
-	"encoding/json"
 
 	"github.com/google/uuid"
 )
@@ -26,6 +26,26 @@ func NewOrderService(repo repository.OrderRepository, mqClient *mq.RabbitMQClien
 		mqClient: mqClient,
 		orders:   make(map[string]domain.Order),
 	}
+}
+
+func (s *OrderService) HandlePaymentResult(ctx context.Context, eventData []byte) error {
+	var event events.PaymentSucceededEvent
+	if err := json.Unmarshal(eventData, &event); err != nil {
+		return err
+	}
+
+	// 根据支付结果更新订单状态
+	order, err := s.GetOrder(ctx, event.OrderID)
+	if err != nil {
+		return err
+	}
+
+	if order.Status != domain.OrderStatusPending {
+		return errors.New("订单状态已更新，无需处理")
+	}
+
+	order.Status = domain.OrderStatusPaid
+	return s.repo.UpdateOrder(ctx, order)
 }
 
 // 创建订单
@@ -72,7 +92,25 @@ func (s *OrderService) CreateOrder(ctx context.Context, req *domain.CreateOrderR
 		}
 	}
 
-	return &order, nil
+	// 发送订单创建事件（Saga开始）
+	event := events.OrderCreatedEvent{
+		OrderID:     order.ID,
+		MerchantID:  req.MerchantID,
+		TotalAmount: req.TotalAmount,
+	}
+
+	eventData, err := json.Marshal(event)
+	if err != nil {
+		log.Printf("订单创建事件序列化失败: %v", err)
+	} else {
+		// 发送到RabbitMQ的"order_created"队列
+		if err := s.mqClient.Publish("order_created", eventData); err != nil {
+			log.Printf("发布订单创建事件失败: %v", err)
+			// 这里可添加重试机制或补偿逻辑
+		}
+	}
+
+	return order, nil
 }
 
 // 支付订单

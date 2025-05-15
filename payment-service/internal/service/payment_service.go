@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"log"
 	"payment-service/internal/domain"
@@ -154,6 +155,45 @@ func (s *PaymentService) ProcessRefund(ctx context.Context, req *domain.RefundRe
 
 	log.Printf("退款处理成功: 订单ID=%s, 金额=%.2f", req.OrderID, req.Amount)
 	return &payment, nil
+}
+
+func (s *PaymentService) HandleOrderCreated(ctx context.Context, eventData []byte) error {
+	var event events.OrderCreatedEvent
+	if err := json.Unmarshal(eventData, &event); err != nil {
+		return err
+	}
+
+	// 模拟支付处理（实际应调用支付渠道API）
+	paymentID, err := s.processPayment(event.OrderID, event.TotalAmount)
+	if err != nil {
+		// 支付失败，发送PaymentFailed事件
+		failEvent := events.PaymentFailedEvent{
+			OrderID: event.OrderID,
+			Reason:  "模拟支付失败",
+		}
+		eventData, _ := json.Marshal(failEvent)
+		s.mqClient.Publish("payment_failed", eventData)
+		return err
+	}
+
+	// 支付成功，发送PaymentSucceeded事件
+	successEvent := events.PaymentSucceededEvent{
+		OrderID:   event.OrderID,
+		PaymentID: paymentID,
+	}
+	eventData, _ := json.Marshal(successEvent)
+	s.mqClient.Publish("payment_succeeded", eventData)
+
+	return nil
+}
+
+// 模拟支付处理（示例）
+func (s *PaymentService) processPayment(orderID string, amount float64) (string, error) {
+	// 实际应调用支付宝/微信支付API
+	if amount < 10 { // 模拟小额支付失败
+		return "", errors.New("支付金额不足")
+	}
+	return uuid.New().String(), nil
 }
 
 // 获取支付信息

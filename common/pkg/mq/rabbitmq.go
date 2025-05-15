@@ -61,16 +61,16 @@ func NewRabbitMQClient(url, queueName string) (*RabbitMQClient, error) {
 }
 
 // 发布消息
-func (c *RabbitMQClient) Publish(message []byte) error {
+func (c *RabbitMQClient) Publish(exchange, routingKey string, message []byte) error {
 	return c.channel.Publish(
-		"",           // 交换器
-		c.queue.Name, // 路由键（队列名称）
-		false,        // 是否强制
-		false,        // 是否立即
+		exchange,   // 交换机名称
+		routingKey, // 路由键
+		false,      // 是否强制
+		false,      // 是否立即
 		amqp.Publishing{
 			ContentType:  "application/json",
 			Body:         message,
-			DeliveryMode: amqp.Persistent, // 持久化消息
+			DeliveryMode: amqp.Persistent,
 		},
 	)
 }

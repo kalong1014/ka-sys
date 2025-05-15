@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"order-service/internal/controller"
 	"order-service/internal/repository"
@@ -8,7 +9,31 @@ import (
 )
 
 func main() {
-	dsn := "user:password@tcp(localhost:3306)/order_db?charset=utf8mb4&parseTime=True&loc=Local"
+	// 初始化RabbitMQ客户端
+	mqClient, err := mq.NewRabbitMQClient(
+		"amqp://guest:guest@localhost:5672/",
+		"order_service",
+	)
+	if err != nil {
+		log.Fatalf("初始化RabbitMQ失败: %v", err)
+	}
+
+	// 声明交换机和队列（示例）
+	if err := mqClient.DeclareExchange("order_exchange", "direct"); err != nil {
+		log.Fatalf("声明交换机失败: %v", err)
+	}
+	if err := mqClient.BindQueue("order_created_queue", "order_exchange", "order_created"); err != nil {
+		log.Fatalf("绑定队列失败: %v", err)
+	}
+
+	// 启动消费者
+	go func() {
+		if err := mqClient.Consume("order_created_queue", func(message []byte) error {
+			return s.HandleOrderCreated(context.Background(), message)
+		}); err != nil {
+			log.Fatalf("启动消费者失败: %v", err)
+		}
+	}()
 
 	// 初始化数据库仓库
 	repo, err := repository.NewOrderMySQLRepo(dsn)
