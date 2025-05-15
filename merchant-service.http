@@ -1,0 +1,24 @@
+### 提交入驻申请
+POST http://localhost:8081/api/v1/merchant/apply HTTP/1.1
+Content-Type: application/json
+
+{
+    "user_id": "bacab84a-f2a6-4423-9f71-191f4c84bb7a",
+    "name": "测试商户",
+    "description": "这是一个测试商户",
+    "business_license": "123456789012345",
+    "contact_name": "张三",
+    "contact_phone": "13800138000"
+}
+
+### 审核商户申请（批准）
+POST http://localhost:8081/api/v1/merchant/review HTTP/1.1
+Content-Type: application/json
+
+{
+    "id": "0bdc0b20-bc57-4092-9dd5-8215f5ed6910",
+    "status": "approved"
+}
+
+### 获取商户信息
+GET http://localhost:8081/api/v1/merchant/0bdc0b20-bc57-4092-9dd5-8215f5ed6910 HTTP/1.1

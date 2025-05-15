@@ -1,0 +1,42 @@
+### 创建订单
+curl -X POST http://localhost:8083/api/v1/order/create \
+  -H "Content-Type: application/json" \
+  -d '{
+    "user_id": "a3c97d34-d9bc-44df-aa22-8b38a82a0b58",
+    "merchant_id": "0bdc0b20-bc57-4092-9dd5-8215f5ed6910",
+    "product_id": "d7f89643-6d02-474e-966f-0128112ef0fa",
+    "product_name": "测试商品",
+    "price": 9.99,
+    "payment_type": "alipay"
+  }'
+
+### 支付订单
+curl -X POST http://localhost:8083/api/v1/order/pay \
+  -H "Content-Type: application/json" \
+  -d '{
+    "order_id": "ebb766b6-4535-47a6-8ba1-5e30efa2452f",
+    "payment_type": "alipay"
+  }'
+
+### 查询订单
+curl http://localhost:8083/api/v1/order/0d9c9d61-c9bf-4987-8235-50387f2ab704
+
+### 取消订单
+curl -X DELETE http://localhost:8083/api/v1/order/0d9c9d61-c9bf-4987-8235-50387f2ab704
+
+### 查询订单列表
+curl http://localhost:8083/api/v1/order/list?user_id=a51c4330-3c5a-4e20-8ba9-ee8c3d9b44dd
+
+###支付订单
+curl -X POST http://localhost:8083/api/v1/order/pay \
+  -H "Content-Type: application/json" \
+  -d '{
+    "order_id": "ebb766b6-4535-47a6-8ba1-5e30efa2452f",
+    "payment_type": "alipay"
+  }'
+
+###获取订单信息
+curl http://localhost:8083/api/v1/order/ebb766b6-4535-47a6-8ba1-5e30efa2452f
+
+###获取用户订单列表
+curl http://localhost:8083/api/v1/order/user/a3c97d34-d9bc-44df-aa22-8b38a82a0b58

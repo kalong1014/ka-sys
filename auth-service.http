@@ -1,0 +1,38 @@
+###用户注册
+curl -X POST http://localhost:8090/api/v1/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "user",
+    "password": "password123",
+    "email": "user@example.com",
+    "role": "user"
+  }'
+
+###验证令牌
+curl -X POST http://localhost:8090/api/v1/auth/validate-token \
+  -H "Authorization: Bearer <登录返回的Token>"
+
+### 注册用户
+curl -X POST http://localhost:8090/api/v1/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "admin",
+    "password": "admin123",
+    "email": "admin@example.com",
+    "role": "admin"
+  }'
+
+### 用户登录获取令牌
+TOKEN=$(curl -s -X POST http://localhost:8090/api/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "admin",
+    "password": "admin123"
+  }' | jq -r '.token')
+
+### 不带令牌的请求（应返回401）
+curl -X GET http://localhost:8088/api/v1/test
+
+### 带有效令牌的请求（应返回200）
+curl -X GET http://localhost:8088/api/v1/test \
+  -H "Authorization: $TOKEN"

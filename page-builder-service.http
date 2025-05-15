@@ -1,0 +1,61 @@
+### 创建页面，请求
+curl -X POST http://localhost:8085/api/v1/page/create \
+  -H "Content-Type: application/json" \
+  -d '{
+    "merchant_id": "b0643293-6670-4887-9cce-800090fc1269",
+    "name": "商品展示页",
+    "description": "商户自定义商品展示页面",
+    "elements": [
+      {
+        "type": "title",
+        "position": 0,
+        "content": "欢迎来到我的商店",
+        "level": 1,
+        "style": {
+          "color": "#ff0000",
+          "textAlign": "center"
+        }
+      },
+      {
+        "type": "image",
+        "position": 1,
+        "url": "https://example.com/banner.jpg",
+        "alt": "商店横幅",
+        "width": 1200,
+        "height": 400
+      },
+      {
+        "type": "button",
+        "position": 2,
+        "content": "立即购买",
+        "link": "/products"
+      }
+    ]
+  }'
+
+###更新页面元素
+curl -X PUT http://localhost:8085/api/v1/page/df149610-dc4a-47a2-ba4e-cca3a42cf1b1 \
+  -H "Content-Type: application/json" \
+  -d '{
+    "elements": [
+      {
+        "type": "title",
+        "position": 0,
+        "content": "热卖商品",
+        "level": 2
+      },
+      {
+        "type": "list",
+        "position": 1,
+        "items": ["商品1", "商品2", "商品3"],
+        "type": "ul"
+      }
+    ]
+  }'
+
+###获取页面详情
+curl http://localhost:8085/api/v1/page/df149610-dc4a-47a2-ba4e-cca3a42cf1b1
+
+###删除页面
+curl -X DELETE http://localhost:8085/api/v1/page/df149610-dc4a-47a2-ba4e-cca3a42cf1b1
+

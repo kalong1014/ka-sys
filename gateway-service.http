@@ -1,0 +1,37 @@
+###添加路由配置
+curl -X POST http://localhost:8088/api/admin/gateway/routes \
+  -H "Content-Type: application/json" \
+  -d '{
+    "path": "/api/v1/order",
+    "method": "POST",
+    "service_name": "order-service",
+    "service_addr": "http://localhost:8083",
+    "timeout": 5000,
+    "retry_times": 1,
+    "rate_limit": 100,
+    "auth_required": true
+  }'
+
+###创建认证配置
+curl -X POST http://localhost:8089/api/admin/gateway/auth-config \
+  -H "Content-Type: application/json" \
+  -d '{
+    "service_name": "auth-service",
+    "service_addr": "http://localhost:8082",
+    "token_header": "Authorization",
+    "public_paths": ["/api/v1/payment/notify"]
+  }'
+
+###通过网关访问服务
+curl -X POST http://localhost:8089/api/v1/order/create \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer your_token_here" \
+  -d '{
+    "user_id": "bacab84a-f2a6-4423-9f71-191f4c84bb7a",
+    "merchant_id": "0bdc0b20-bc57-4092-9dd5-8215f5ed6910",
+    "product_id": "d7f89643-6d02-474e-966f-0128112ef0fa",
+    "product_name": "测试商品",
+    "price": 9.99,
+    "payment_type": "alipay"
+  }'
+

@@ -1,0 +1,35 @@
+###创建支付
+curl -X POST http://localhost:8084/api/v1/payment/create \
+  -H "Content-Type: application/json" \
+  -d '{
+    "order_id": "ebb766b6-4535-47a6-8ba1-5e30efa2452f",
+    "user_id": "a3c97d34-d9bc-44df-aa22-8b38a82a0b58",
+    "merchant_id": "0bdc0b20-bc57-4092-9dd5-8215f5ed6910",
+    "amount": 9.99,
+    "method": "alipay"
+  }'
+
+### 处理支付结果-模拟成功
+curl -X POST http://localhost:8084/api/v1/payment/process-result \
+  -H "Content-Type: application/json" \
+  -d '{
+    "order_id": "ebb766b6-4535-47a6-8ba1-5e30efa2452f",
+    "transaction_id": "bd2d2c57-612e-46ea-b2db-77deaa19f559",
+    "status": "success",
+    "payment_time": "2025-05-14T12:00:00Z"
+  }'
+
+###处理退款
+curl -X POST http://localhost:8084/api/v1/payment/refund \
+  -H "Content-Type: application/json" \
+  -d '{
+    "order_id": "ebb766b6-4535-47a6-8ba1-5e30efa2452f",
+    "reason": "用户申请退款",
+    "amount": 9.99
+  }'
+
+###获取支付信息
+curl http://localhost:8084/api/v1/payment/7454bc93-5661-44ac-b141-1e39d41939b3
+
+###获取订单记录
+curl http://localhost:8084/api/v1/payment/order/ebb766b6-4535-47a6-8ba1-5e30efa2452f

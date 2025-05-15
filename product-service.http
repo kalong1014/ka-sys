@@ -1,0 +1,26 @@
+###创建商品
+curl -X POST http://localhost:8082/api/v1/product/create \
+  -H "Content-Type: application/json" \
+  -d '{
+    "merchant_id": "0bdc0b20-bc57-4092-9dd5-8215f5ed6910",
+    "name": "测试商品",
+    "description": "这是一个测试商品",
+    "price": 9.99,
+    "stock": 0
+  }'
+
+###生成卡密
+curl -X POST http://localhost:8082/api/v1/product/generate-card-keys \
+  -H "Content-Type: application/json" \
+  -d '{
+    "product_id": "d7f89643-6d02-474e-966f-0128112ef0fa",
+    "merchant_id": "0bdc0b20-bc57-4092-9dd5-8215f5ed6910",
+    "count": 10,
+    "expire_days": 30
+  }'
+
+###获取商品列表
+curl http://localhost:8082/api/v1/product/card-key/c3ab5933-f078-41f0-89c2-d7b1af40c200
+
+###使用卡密
+curl -X PUT "http://localhost:8082/api/v1/product/card-key/c3ab5933-f078-41f0-89c2-d7b1af40c200/status?status=used&used_by=a3c97d34-d9bc-44df-aa22-8b38a82a0b58"

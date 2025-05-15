@@ -1,0 +1,29 @@
+###记录访问
+curl -X POST http://localhost:8087/api/v1/analytics/visit \
+  -H "Content-Type: application/json" \
+  -d '{
+    "domain_id": "5a472aac-153c-4a3d-ba92-3d780938c178",
+    "page_id": "1f9be6ad-9804-4744-8f2b-c6454bbc9243",
+    "user_id": "bacab84a-f2a6-4423-9f71-191f4c84bb7a",
+    "ip": "192.168.1.1",
+    "user_agent": "Mozilla/5.0",
+    "referrer": "https://google.com",
+    "duration": 60
+  }'
+
+###获取订单统计
+curl -X POST http://localhost:8087/api/v1/analytics/order-stats \
+  -H "Content-Type: application/json" \
+  -d '{
+    "merchant_id": "B0643293-6670-4887-9CCE-800090FC1269",
+    "period": "monthly"
+  }'
+
+###获取流量统计
+curl -X POST http://localhost:8087/api/v1/analytics/traffic-stats \
+  -H "Content-Type: application/json" \
+  -d '{
+    "merchant_id": "B0643293-6670-4887-9CCE-800090FC1269",
+    "domain_id": "5A472AAC-153C-4A3D-BA92-3D780938C178",
+    "period": "weekly"
+  }'
