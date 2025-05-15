@@ -1,0 +1,23 @@
+/* 移动端适配 */
+@media (max-width: 768px) {
+  .container {
+    padding: 10px;
+  }
+  
+  .el-table {
+    font-size: 12px;
+  }
+  
+  .el-pagination {
+    font-size: 12px;
+  }
+  
+  .el-form-item__label {
+    font-size: 12px;
+  }
+  
+  .el-button {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+}
