@@ -6,17 +6,19 @@ import (
 	"log"
 	"merchant-service/internal/domain"
 	"time"
-
+	"merchant-service/internal/repository"
 	"github.com/google/uuid"
 )
 
 type MerchantService struct {
 	applications map[string]domain.MerchantApplication
 	merchants    map[string]domain.Merchant
+	repo repository.MerchantRepository // 修改接口类型
 }
 
-func NewMerchantService() *MerchantService {
+func NewMerchantService(repo repository.MerchantRepository) *MerchantService {
 	return &MerchantService{
+		repo: repo
 		applications: make(map[string]domain.MerchantApplication),
 		merchants:    make(map[string]domain.Merchant),
 	}
