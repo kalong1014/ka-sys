@@ -1,0 +1,26 @@
+{
+  "common": {
+    "welcome": "欢迎使用商户管理平台",
+    "dashboard": "仪表盘",
+    "domains": "域名管理",
+    "orders": "订单管理",
+    "pages": "页面构建",
+    "settings": "系统设置"
+  },
+  "login": {
+    "title": "商户登录",
+    "username": "用户名",
+    "password": "密码",
+    "login": "登录",
+    "remember": "记住我"
+  },
+  "domain": {
+    "list": "域名列表",
+    "add": "添加域名",
+    "edit": "编辑域名",
+    "status": "状态",
+    "active": "已激活",
+    "pending": "待审核",
+    "disabled": "已禁用"
+  }
+}

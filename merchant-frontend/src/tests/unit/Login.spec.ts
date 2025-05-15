@@ -1,14 +1,17 @@
 import { mount } from '@vue/test-utils'
 import Login from '@/views/Login.vue'
-import { createStore } from 'pinia'
+import { setActivePinia, createPinia } from 'pinia'  // 使用 createPinia
 
 describe('Login.vue', () => {
   let wrapper: any
   
   beforeEach(() => {
+    const pinia = createPinia()
+    setActivePinia(pinia)
+    
     wrapper = mount(Login, {
       global: {
-        plugins: [createStore()]
+        plugins: [pinia]
       }
     })
   })

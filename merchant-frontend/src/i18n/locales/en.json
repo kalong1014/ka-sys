@@ -1,0 +1,26 @@
+{
+  "common": {
+    "welcome": "Welcome to Merchant Management Platform",
+    "dashboard": "Dashboard",
+    "domains": "Domain Management",
+    "orders": "Order Management",
+    "pages": "Page Builder",
+    "settings": "System Settings"
+  },
+  "login": {
+    "title": "Merchant Login",
+    "username": "Username",
+    "password": "Password",
+    "login": "Login",
+    "remember": "Remember me"
+  },
+  "domain": {
+    "list": "Domain List",
+    "add": "Add Domain",
+    "edit": "Edit Domain",
+    "status": "Status",
+    "active": "Active",
+    "pending": "Pending",
+    "disabled": "Disabled"
+  }
+}

@@ -1,27 +1,33 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Login from '../views/Login.vue'
-import Dashboard from '../views/Dashboard.vue'
-import DomainList from '../views/DomainList.vue'
 
 const routes = [
-  { path: '/', redirect: '/login' },
-  { path: '/login', component: Login, meta: { public: true } },
-  { path: '/dashboard', component: Dashboard, meta: { requiresAuth: true } },
-  { path: '/domains', component: DomainList, meta: { requiresAuth: true } }
+  {
+    path: '/',
+    redirect: '/login',
+  },
+  {
+    path: '/login',
+    name: 'Login',
+    component: () => import('@/views/Login.vue'),  // 懒加载
+  },
+  {
+    path: '/dashboard',
+    name: 'Dashboard',
+    component: () => import('@/views/Dashboard.vue'),  // 懒加载
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/domains',
+    name: 'Domains',
+    component: () => import('@/views/domains/DomainList.vue'),  // 懒加载
+    meta: { requiresAuth: true },
+  },
+  // 其他路由...
 ]
 
 const router = createRouter({
   history: createWebHistory(),
-  routes
-})
-
-router.beforeEach((to, from, next) => {
-  const userStore = useUserStore()
-  if (to.meta.requiresAuth && !userStore.token) {
-    next('/login')
-  } else {
-    next()
-  }
+  routes,
 })
 
 export default router
